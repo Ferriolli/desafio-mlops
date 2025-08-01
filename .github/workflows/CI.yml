@@ -1,0 +1,24 @@
+name: Check File Formatting (Black)
+
+on:
+  push:
+
+jobs:
+  black-code-check:
+    name: Black Code Formatter
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Black
+        run: pip install black
+
+      - name: Run code check
+        run: black --check .
