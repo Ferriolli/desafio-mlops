@@ -85,12 +85,8 @@ services:
     depends_on:
       - postgres
       - airflow_redis
-    environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-      AIRFLOW__WEBSERVER__SECRET_KEY: 'SUPER_SECRET_KEY'
-      AIRFLOW__CORE__FERNET_KEY: BDV4hA56l2t8BdkDXDWJooAWQdKj4xwBHWJLoAKNQuw=
-      AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+    env_file:
+      - ../.env
     volumes:
       - ../jobs:/mlops/jobs
       - ../data:/mlops/data
@@ -117,12 +113,8 @@ services:
       - airflow-webserver
       - postgres
       - airflow_redis
-    environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-      AIRFLOW__WEBSERVER__SECRET_KEY: 'SUPER_SECRET_KEY'
-      AIRFLOW__CORE__FERNET_KEY: BDV4hA56l2t8BdkDXDWJooAWQdKj4xwBHWJLoAKNQuw=
-      AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+    env_file:
+      - ../.env
     volumes:
       - ../jobs:/mlops/jobs
       - ../data:/mlops/data
