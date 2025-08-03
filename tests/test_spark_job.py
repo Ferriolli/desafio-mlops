@@ -34,4 +34,4 @@ def test_run_operations(sample_dataframe):
 
     result_df = reader.run_operations(sample_dataframe, use_redis=False)
 
-    assert set(result_df.columns) == {'cidade', 'quantidade_empresas', 'capital_social_medio', 'capital_socaial_total'}
+    assert set(result_df.columns) == {'cidade', 'quantidade_empresas', 'capital_social_medio', 'capital_social_total'}
