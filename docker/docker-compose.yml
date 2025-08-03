@@ -28,8 +28,8 @@ services:
     environment:
       - SPARK_MODE=master
     volumes:
-      - ../app:/app
-      - ../jobs:/opt/airflow/jobs
+      - ../jobs:/mlops/jobs
+      - ../data:/mlops/data
     ports:
       - "8085:8080"
       - "7077:7077"
@@ -44,7 +44,8 @@ services:
       - SPARK_MASTER_URL=spark://spark-master:7077
     volumes:
       - ../app:/app
-      - ../jobs:/opt/airflow/jobs
+      - ../jobs:/mlops/jobs
+      - ../data:/mlops/data
     depends_on:
       - spark-master
     ports:
@@ -91,10 +92,10 @@ services:
       AIRFLOW__CORE__FERNET_KEY: BDV4hA56l2t8BdkDXDWJooAWQdKj4xwBHWJLoAKNQuw=
       AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
     volumes:
+      - ../jobs:/mlops/jobs
+      - ../data:/mlops/data
       - ../dags:/opt/airflow/dags
       - airflow-logs:/opt/airflow/logs
-      - ../jobs:/opt/airflow/jobs
-      # - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8080:8080"
     command: >
@@ -123,10 +124,10 @@ services:
       AIRFLOW__CORE__FERNET_KEY: BDV4hA56l2t8BdkDXDWJooAWQdKj4xwBHWJLoAKNQuw=
       AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
     volumes:
+      - ../jobs:/mlops/jobs
+      - ../data:/mlops/data
       - ../dags:/opt/airflow/dags
       - airflow-logs:/opt/airflow/logs
-      - ../jobs:/opt/airflow/jobs
-      # - /var/run/docker.sock:/var/run/docker.sock
     command: scheduler
     restart: unless-stopped
     networks:

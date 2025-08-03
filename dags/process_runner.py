@@ -1,6 +1,7 @@
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
+from airflow.models import Param
 from airflow import DAG
 from datetime import datetime
 
@@ -9,6 +10,10 @@ with DAG(
     dag_id='feature_engineering',
     start_date=datetime(2025, 7, 1),
     schedule='@daily',
+    params={
+        "caminho_arquivo": Param(default="/mlops/data/novas_empresas.csv", type="string"),
+        "save_to_db": Param(default=True)
+    },
     catchup=False
 ) as dag:
 
@@ -16,12 +21,11 @@ with DAG(
 
     processar_e_salvar_features = SparkSubmitOperator(
         task_id='processar_e_salvar_features',
-        application='/opt/airflow/jobs/job.py',
+        application='/mlops/jobs/job.py',
         conn_id='spark_custom',
         conf={"spark.master": "spark://spark-master:7077"},
-        # master='spark://spark-master:7077',
-        # application_args=[],
         verbose=True,
+        application_args=["{{ params.caminho_arquivo }}", "{{ params.save_to_db | lower }}"],
         executor_memory='1g',
         driver_memory='1g',
         dag=dag,
