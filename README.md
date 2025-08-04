@@ -48,6 +48,7 @@ Crie um arquivo .env na raíz do projeto, e adicione as seguintes variáveis de 
 Uma nova fernet key deve ser gerada para cada nova instância do Airflow.
 Para testes, é possível usar a que está na coluna "Valor de exemplo", mas caso queira gerar uma nova, siga os passos abaixo.
 Para gerar uma nova fernet key, execute o seguinte comando em um terminal com Python instalado (É necessário ter a biblioteca cryptography instalada).
+Caso troque a FERNET key após a primeira execução do AIRFLOW, todas as connections serão invalidadas, será necessário recriar a conexão com o Spark (passo-a-passo mais abaixo).
 ```
 # Para instalar a biblioteca (caso ainda não tenha)
 pip install cryptography
@@ -62,7 +63,7 @@ Após a criação do arquivo conforme descrito acima, vá até a pasta docker/ d
 docker compose up -d
 ```
 
-Com isso, todos as imagens serão baixadas/montadas e os serviços serão iniciados.
+Com isso, todas as imagens serão baixadas/montadas e os serviços serão iniciados.
 
 Após o fim da execução do comando anterior, aguarde até que os serviços iniciem, e abra o Airflow.
 Você pode checar o status dos serviços com o comando abaixo, que mostra várias informações dos containers que estão sendo executados.
@@ -73,7 +74,7 @@ docker ps
 No Browser, acesse a UI do Airflow em: localhost:8080.
 Usuário e senha padrão: `admin` / `admin`
 
-O docker-compose já configura tudo que é necessário para executar a DAG (adiciona o usuário, e cria a conexão com o Spark).
+O docker-compose já configura tudo necessário para executar a DAG (adiciona o usuário, e cria a conexão com o Spark).
 ### Visualização da DAG
 
 A partir daqui, a configuração inicial já foi feita, agora partiremos para a execução do código.
@@ -81,8 +82,8 @@ Conforme a configuração dos containers, a DAG já aparecerá na tela inicial d
 
 Essa DAG é composta de 4 steps, são eles:
 1. iniciar_processamento_task: Um BashOperator que apenas printa um log (Iniciando pipeline...)
-2. check_redis: Um PythonOperator que faz um health check no Redis, basicamente faz um ping na conexão, e levanta um erro caso não obtenha um retorno do serviço.
-3. processar_e_salvar_features: Um SparkSubmitOperator, o serviço principal da DAG, envia um comando para o Spark com os parametros necessários e inicia o processamento.
+2. check_redis: um PythonOperator que faz um health check no Redis, basicamente faz um ping na conexão, e levanta um erro caso não obtenha um retorno do serviço.
+3. processar_e_salvar_features: um SparkSubmitOperator, o serviço principal da DAG, envia um comando para o Spark com os parâmetros necessários e inicia o processamento.
 4. end_task, um DummyOperator que apenas serve como visual.
 
 Será mostrada a tela de execução da DAG, onde são apresentados os LOGS das execuções.
@@ -150,3 +151,16 @@ docker compose -f tests/docker/docker-compose.tests.yml up -d
 ```
 
 A execução do comando acima salva os relatórios dos testes em `tests/test_results`.
+
+### Criação da conexão com o Spark
+Caso a FERNET key seja alterada após a inicialização do Airflow, ele perde a capacidade de decodificar informações de conexões, nesse caso, é necessário recriar a conexão com o Spark.
+
+1. Na aba Admin (topo da tela) clique em Connections
+2. Clique no "+" para adicionar uma conexão
+3. Preencha as informações da seguinte forma:
+    - Connection id: **spark_custom**
+    - Connection Type: **Spark Connect**
+    - Host: **spark://spark-master**
+    - Port: **7077**
+4. Clique em "Save"
+
