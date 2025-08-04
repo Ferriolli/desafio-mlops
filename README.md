@@ -20,7 +20,6 @@ git clone https://github.com/Ferriolli/desafio-mlops.git
 git clone git@github.com:Ferriolli/desafio-mlops.git
 ```
 
-
 Para a primeira execução do projeto, são necessários alguns passos para configurar o Airflow.
 
 Crie um arquivo .env na raíz do projeto, e adicione as seguintes variáveis de ambiente.
@@ -43,7 +42,8 @@ Para gerar uma nova fernet key, execute o seguinte comando em um terminal com Py
 # Para instalar a biblioteca (caso ainda não tenha)
 pip install cryptography
 
-# Para gerar a chave fernet, execute o seguinte comando e cole a saída como valor da variável de ambiente.
+# Para gerar a chave fernet, execute o seguinte comando e cole a saída como valor
+# da variável de ambiente: AIRFLOW__CORE__FERNET_KEY
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
 
