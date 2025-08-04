@@ -5,7 +5,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - $HOME/.redis:/data
+      - redis-data:/data
     command: ["redis-server"]
     networks:
       - spark-net
@@ -23,7 +23,7 @@ services:
       - spark-net
 
   spark-master:
-    image: bitnami/spark:latest
+    image: bitnami/spark:4.0.0
     container_name: spark-master
     environment:
       - SPARK_MODE=master
@@ -37,13 +37,13 @@ services:
       - spark-net
 
   spark-worker:
-    image: bitnami/spark:latest
+    image: bitnami/spark:4.0.0
     container_name: spark-worker
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
     volumes:
-      - ../app:/app
+      - ../worker-deps:/worker-deps
       - ../jobs:/mlops/jobs
       - ../data:/mlops/data
     depends_on:
@@ -54,7 +54,7 @@ services:
       - bash
       - -c
       - |
-        pip install -r /app/requirements.txt && \
+        pip install -r /worker-deps/requirements.txt && \
         /opt/bitnami/scripts/spark/entrypoint.sh /opt/bitnami/scripts/spark/run.sh
     networks:
       - spark-net
@@ -98,6 +98,8 @@ services:
       bash -c "
         airflow db upgrade &&
         airflow users create --username admin --firstname test --lastname user --role Admin --email admin@example.com --password admin &&
+        airflow connections add spark_custom --conn-type generic --conn-host spark://spark-master --conn-port 7077 &&
+        airflow dags unpause feature_engineering || true &&
         airflow webserver
       "
     restart: unless-stopped
@@ -126,6 +128,7 @@ services:
       - spark-net
 
 volumes:
+  redis-data:
   postgres-db-volume:
   airflow-logs:
 networks:

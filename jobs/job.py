@@ -2,6 +2,7 @@ import logging
 import sys
 
 from pyspark.sql import SparkSession, functions
+from pyspark.sql.utils import AnalysisException
 import redis
 
 
@@ -34,7 +35,11 @@ class SparkCSVReader:
         return process_partition
 
     def create_dataframe_from_file(self, filename):
-        return self._spark.read.csv(filename, header=True, inferSchema=True)
+        try:
+            return self._spark.read.csv(filename, header=True, inferSchema=True)
+        except AnalysisException as e:
+            logger.error(f"[Erro Spark] --- Erro ao ler o arquivo - {e}")
+            raise e
 
     def run_operations(self, dataframe, redis_params: dict, use_redis: bool = False):
         result = dataframe.groupBy("cidade").agg(

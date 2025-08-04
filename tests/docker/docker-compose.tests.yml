@@ -1,0 +1,8 @@
+services:
+  test-container:
+    container_name: tests
+    build:
+      context: ../../
+      dockerfile: tests/docker/Dockerfile-tests
+    volumes:
+      - ../test_results:/app/test_results
