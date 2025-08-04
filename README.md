@@ -89,7 +89,7 @@ Será mostrada a tela de execução da DAG, onde são apresentados os LOGS das e
 
 ### Execução da DAG
 
-> [!INFO]
+> [!NOTE]
 > Já tem um comando no compose que torna a DAG ativa na primeira vez que o container sobe, ou seja, ao entrar na UI, já é para uma execução ter sido completada.
 > Os passos abaixos são para executar a DAG manualmente.
 
