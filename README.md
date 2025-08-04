@@ -87,7 +87,7 @@ Essa DAG é composta de 4 steps, são eles:
 Será mostrada a tela de execução da DAG, onde são apresentados os LOGS das execuções.
 No canto superior direito, clique no botão de "Play", a seguinte tela será mostrada:
 
-![[Pasted image 20250804000841.png]]
+![Trigger da dag no Airflow](assets/airflow_dag_trigger.png)
 
 Os parâmetros padrão são os que estão mostrados no print acima. Já está configurado para executar de forma correta, mas, está parametrizado.
 O volume está configurado para montar o arquivo novas_empresas.csv no caminho **/mlops/data/novas_empresas.csv** dentro do Container.

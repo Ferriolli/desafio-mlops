@@ -99,7 +99,7 @@ def test_make_process_partition():
         process_func(fake_partition)
 
         mock_redis.hset.assert_any_call(
-            name="cidade: São Paulo",
+            name="São Paulo",
             mapping={
                 "capital_social_total": 30000,
                 "quantidade_empresas": 2,
@@ -108,7 +108,7 @@ def test_make_process_partition():
         )
 
         mock_redis.hset.assert_any_call(
-            name="cidade: Belo Horizonte",
+            name="Belo Horizonte",
             mapping={
                 "capital_social_total": 20000,
                 "quantidade_empresas": 1,

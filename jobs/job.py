@@ -29,7 +29,7 @@ class SparkCSVReader:
                     "capital_social_medio": row["capital_social_medio"],
                 }
             for key, value in data.items():
-                r.hset(name=f"cidade: {key}", mapping=value)
+                r.hset(name=key, mapping=value)
 
         return process_partition
 
