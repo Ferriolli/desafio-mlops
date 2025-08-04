@@ -1,0 +1,135 @@
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server"]
+    networks:
+      - spark-net
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8082:8081"
+    depends_on:
+      - redis
+    networks:
+      - spark-net
+
+  spark-master:
+    image: bitnami/spark:4.0.0
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+    volumes:
+      - ../jobs:/mlops/jobs
+      - ../data:/mlops/data
+    ports:
+      - "8085:8080"
+      - "7077:7077"
+    networks:
+      - spark-net
+
+  spark-worker:
+    image: bitnami/spark:4.0.0
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    volumes:
+      - ../worker-deps:/worker-deps
+      - ../jobs:/mlops/jobs
+      - ../data:/mlops/data
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"
+    command:
+      - bash
+      - -c
+      - |
+        pip install -r /worker-deps/requirements.txt && \
+        /opt/bitnami/scripts/spark/entrypoint.sh /opt/bitnami/scripts/spark/run.sh
+    networks:
+      - spark-net
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    networks:
+      - spark-net
+
+  airflow_redis:
+    image: redis:7
+    ports:
+      - "6380:6379"
+    networks:
+      - spark-net
+
+  airflow-webserver:
+    container_name: airflow-webserver
+    build:
+      context: .
+      dockerfile: Dockerfile-airflow
+    depends_on:
+      - postgres
+      - airflow_redis
+    env_file:
+      - ../.env
+    volumes:
+      - ../jobs:/mlops/jobs
+      - ../data:/mlops/data
+      - ../dags:/opt/airflow/dags
+      - airflow-logs:/opt/airflow/logs
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "
+        airflow db upgrade &&
+        airflow users create --username admin --firstname test --lastname user --role Admin --email admin@example.com --password admin &&
+        airflow connections add spark_custom --conn-type generic --conn-host spark://spark-master --conn-port 7077 &&
+        airflow dags unpause feature_engineering || true &&
+        airflow webserver
+      "
+    restart: unless-stopped
+    networks:
+      - spark-net
+
+  airflow-scheduler:
+    container_name: airflow-scheduler
+    build:
+      context: .
+      dockerfile: Dockerfile-airflow
+    depends_on:
+      - airflow-webserver
+      - postgres
+      - airflow_redis
+    env_file:
+      - ../.env
+    volumes:
+      - ../jobs:/mlops/jobs
+      - ../data:/mlops/data
+      - ../dags:/opt/airflow/dags
+      - airflow-logs:/opt/airflow/logs
+    command: scheduler
+    restart: unless-stopped
+    networks:
+      - spark-net
+
+volumes:
+  redis-data:
+  postgres-db-volume:
+  airflow-logs:
+networks:
+  spark-net:
