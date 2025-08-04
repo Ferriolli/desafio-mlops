@@ -57,7 +57,7 @@ pip install cryptography
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 ```
 
-Após a criação do arquivo conforme descrito acima, vá até a pasta docker/ dentro do projeto, e inicie os serviços com o Docker.
+Após a criação do arquivo `.env` conforme descrito acima, vá até a pasta docker/ dentro do projeto, e inicie os serviços com o Docker.
 
 ```
 docker compose up -d
@@ -115,7 +115,7 @@ Ao fim da execução, em caso de sucesso, os dados podem ser visualizados pelo R
 
 ## Execução de Lint ou testes
 
-As dependências necessárias para executar os testes e o lint estão listadas no arquivo requirements.txt na **raíz do projeto**.
+As dependências necessárias para executar os testes e o lint estão listadas no arquivo requirements.txt dentro de `tests/`.
 
 Para executar lint no código é necessário o módulo `Black`, utilizado da seguinte forma:
 
@@ -128,7 +128,7 @@ black .
 black --check .
 ```
 
-Para executar os testes unitários sem verificação de cobertura, é necessário o módulo `pytest`, caso deseje verificação de cobertura, também é necessário o `pytest-cov`
+Para executar os testes unitários é necessário o módulo `pytest`, caso deseje verificação de cobertura, também é necessário o `pytest-cov`
 É necessário ter Java instalado na máquina caso queira executar os testes localmente, por conta do Spark.
 
 ```
