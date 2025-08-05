@@ -19,7 +19,19 @@ class SparkCSVReader:
 
     @staticmethod
     def make_process_partition(redis_params):
+        """
+        Função que recebe os parâmetros de conexão com o Redis e cria uma função que será passada executada
+        para cada partição.
+        :param redis_params: Dicionário com os parâmetros de conexão do Redis.
+        :return: Função com os parãmetros de conexão do Redis já injetados.
+        """
         def process_partition(partition):
+            """
+            Função chamada para cada partição processada pelo Spark.
+            Cria conexão com o banco, cria um dicionário com os dados processados, e salva no banco (caso solicitado).
+            :param partition: Partição com os dados (Spark)
+            :return: None
+            """
             r = redis.Redis(**redis_params)
             data = {}
             for row in partition:
@@ -35,6 +47,11 @@ class SparkCSVReader:
         return process_partition
 
     def create_dataframe_from_file(self, filename):
+        """
+        Função que recebe o caminho do arquivo como parâmetro e cria um DataFrame do Spark com os dados lidos.
+        :param filename: Caminho do arquivo dentro do Container.
+        :return: DataFrame do Spark com os dados lidos.
+        """
         try:
             return self._spark.read.csv(filename, header=True, inferSchema=True)
         except AnalysisException as e:
@@ -42,6 +59,13 @@ class SparkCSVReader:
             raise e
 
     def run_operations(self, dataframe, redis_params: dict, use_redis: bool = False):
+        """
+        Função principal, faz as agregações e chama a função que salva os dados no banco.
+        :param dataframe: DataFrame do Spark com os dados lidos.
+        :param redis_params: Dicionário com os parâmetros de conexão do Redis.
+        :param use_redis: Booleana que indica se os dados devem ou não ser salvos no banco.
+        :return:
+        """
         result = dataframe.groupBy("cidade").agg(
             functions.count("cnpj").alias("quantidade_empresas"),
             functions.avg("capital_social").alias("capital_social_medio"),
@@ -59,6 +83,10 @@ class SparkCSVReader:
 
     @staticmethod
     def parse_args():
+        """
+        Função que faz parse dos argumentos passados pelo SparkSubmitOperator do Airflow.
+        :return: Todos os argumentos parseados e tratados.
+        """
         _caminho_arquivo = sys.argv[1]
         _save_to_db = sys.argv[2].lower() == "true"
         redis_host = sys.argv[3].lower()
