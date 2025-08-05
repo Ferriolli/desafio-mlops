@@ -25,6 +25,7 @@ class SparkCSVReader:
         :param redis_params: Dicionário com os parâmetros de conexão do Redis.
         :return: Função com os parãmetros de conexão do Redis já injetados.
         """
+
         def process_partition(partition):
             """
             Função chamada para cada partição processada pelo Spark.
