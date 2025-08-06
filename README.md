@@ -130,6 +130,7 @@ black --check .
 
 Para executar os testes unitários é necessário o módulo `pytest`, caso deseje verificação de cobertura, também é necessário o `pytest-cov`
 É necessário ter Java instalado na máquina caso queira executar os testes localmente, por conta do Spark.
+Instruções para execução dos testes com Docker estão mais abaixo.
 
 ```
 # Na raíz do projeto
